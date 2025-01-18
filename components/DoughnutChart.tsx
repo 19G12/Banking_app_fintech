@@ -11,6 +11,9 @@ ChartJS.register(ArcElement,Tooltip,Legend);
 
 const DoughnutChart = ({accounts}:DoughnutChartProps) => {
     
+    const accountNames = accounts.map((val) => val.name);
+    const balances = accounts.map((val) => val.currentBalance.toString());
+    
     const options = {
         responsive: true,
         plugins: {
@@ -22,12 +25,12 @@ const DoughnutChart = ({accounts}:DoughnutChartProps) => {
     };
     
     const data = {
-        labels: ["Bank1", "Bank2", "Bank3"],
+        labels: accountNames,
         datasets: 
         [
             {
               label: 'Banks',
-              data: [1250, 2500, 3750],
+              data: balances,
               backgroundColor: [
                 "#0747b6", "#2265d8", "#2f91fa"
               ],

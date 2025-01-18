@@ -3,7 +3,7 @@ import { createAdminClient, createSessionClient } from "../appwrite";
 import { cookies } from "next/headers";
 import { encryptId, extractCustomerIdFromUrl, parseStringify } from "../utils";
 import { CountryCode, ProcessorTokenCreateRequest, ProcessorTokenCreateRequestProcessorEnum, Products } from "plaid";
-import { ID } from "node-appwrite";
+import { ID, Query } from "node-appwrite";
 import { revalidatePath } from "next/cache";
 import { addFundingSource, createDwollaCustomer, createNewBankAccount } from "./dwolla.actions";
 import {PlaidApi, Configuration} from 'plaid';
@@ -78,13 +78,28 @@ export const signUp = async (data : SignUpParams) => {
     }
 }
 
+export const userGetInfo = async ({userId}:{userId : string}) => {
+    try {
+        const {database} = await createAdminClient();
+        const response = await database.listDocuments(
+            DATABASE_ID!,
+            USER_COLLECTION_ID!,
+            [Query.equal('userId', userId)] 
+        );
+        
+        if (!response.documents.length) console.log("No banks were found for this user");
+        
+        return parseStringify(response.documents[0]);
+    } catch (error) {
+        console.log("Error in fetching user info",error);
+    }
+}
+
 export const signIn = async ({
     email,
     password
 }: signInProps) => {
-    try {
-        console.log(email, password);
-        
+    try {        
         const {account} = await createAdminClient();
         const session = await account.createEmailPasswordSession(email, password);
         
@@ -95,7 +110,9 @@ export const signIn = async ({
             secure:true
         });
         
-        return parseStringify(session);
+        const user = await userGetInfo({userId: session?.userId});
+        
+        return parseStringify(user);
         
     } catch (error) {
     
@@ -106,7 +123,10 @@ export const signIn = async ({
 export const getLoggedInUser = async () => {
     try {
         const {account} = await createSessionClient();
-        const user = await account.get();
+        const response = await account.get();
+        
+        const user = await userGetInfo({userId: response.$id});
+        
         return parseStringify(user);
     } catch (error) {
         console.log(error);
@@ -136,7 +156,7 @@ export const getLinkToken = async (user: User) => {
                 client_user_id: id
             },
             client_name: `${user.firstName} ${user.lastName}`,
-            products: ['auth'] as Products[],
+            products: ['auth','transactions'] as Products[],
             country_codes: ['US','CA'] as CountryCode[],
             language: 'en'
         });
@@ -202,5 +222,45 @@ export const exchangePublicToken = async ({publicToken, user}: exchangePublicTok
     } catch (error) {
         console.log('Error exchanging public token:', error);
         throw new Error("Failed to exchange public token");
+    }
+}
+
+export const getBanks = async (userId: string) => {    
+    
+    try {
+        const {database} = await createAdminClient();
+        const response = await database.listDocuments(
+            DATABASE_ID!,
+            BANK_COLLECTION_ID!,
+            [Query.equal('userId', userId)] 
+        );
+        
+        if (!response.documents.length) console.log("No banks were found for this user");
+        
+        return parseStringify(response.documents);
+        
+    } catch (error) {
+        console.log("Error occured while fetching bank details: ", error);
+        throw error
+    }
+}
+
+export const getBank = async (documentId: string) => {
+
+    try {
+        const {database} = await createAdminClient();
+        const response = await database.listDocuments(
+            DATABASE_ID!,
+            BANK_COLLECTION_ID!,
+            [Query.equal('$id', documentId)] 
+        );
+        
+        if (!response.documents.length) console.log("No banks were found for this user");
+        
+        return parseStringify(response.documents[0]);
+        
+    } catch (error) {
+        console.log("Error occured while fetching bank details: ", error);
+        throw error
     }
 }

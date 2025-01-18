@@ -237,7 +237,7 @@ declare interface TransactionHistoryTableProps {
 }
 
 declare interface CategoryBadgeProps {
-  category: string;
+  category: string | string[];
 }
 
 declare interface TransactionTableProps {

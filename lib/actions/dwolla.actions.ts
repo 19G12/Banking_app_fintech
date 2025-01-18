@@ -6,7 +6,6 @@ import dwolla from "dwolla-v2";
 
 const {
     APPWRITE_DATABASE_ID: DATABASE_ID,
-    APPWRITE_USER_COLLECTION_ID: USER_COLLECTION_ID,
     APPWRITE_BANK_COLLECTION_ID: BANK_COLLECTION_ID
 } = process.env;
 
@@ -59,10 +58,10 @@ export const createTransfer = async ({sourceFundingSourceUrl, destinationFunding
     return res.headers.get('location'); // Transfer Url
 };
 
-export const createOndemandAuthorization = async (customerId: string) => {
+export const createOndemandAuthorization = async () => {
     
     try {
-        const onDemandAuth = await dwollaClient.post(`customers/${customerId}/on-demand-authorizations`);
+        const onDemandAuth = await dwollaClient.post(`on-demand-authorizations`);
         return onDemandAuth.body?._links;
     } catch (error) {
         console.error("Error creating on-demand authorization:", error);
@@ -74,7 +73,7 @@ export const createOndemandAuthorization = async (customerId: string) => {
 export const addFundingSource = async ({dwollaCustomerId, processorToken, bankName}: AddFundingSourceParams) => {
     
     try {
-        const dwollaAuthLinks = await createOndemandAuthorization(dwollaCustomerId);
+        const dwollaAuthLinks = await createOndemandAuthorization();
             
         const fundingSourceOptions = {
           customerId: dwollaCustomerId,

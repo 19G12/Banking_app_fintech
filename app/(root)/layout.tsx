@@ -13,6 +13,8 @@ export default async function RootLayout({
     const sessionUser = await getLoggedInUser();
     if (!sessionUser) redirect("/sign-in");
     
+    sessionUser['name'] = `${sessionUser.firstName} ${sessionUser.lastName}`;
+    
   return (
      <main className="flex h-screen w-full font-inter">
         <SideBar user={sessionUser} />
