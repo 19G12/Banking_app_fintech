@@ -18,18 +18,18 @@ const TransactionsTable = ({transactions}: TransactionTableProps) => {
     backgroundColor,
     textColor,
     chipBackgroundColor
-    } = transactionCategoryStyles[category[0] as keyof typeof transactionCategoryStyles] || transactionCategoryStyles.default
+    } = transactionCategoryStyles[typeof category === "string" ? category as keyof typeof transactionCategoryStyles : category[0] as keyof typeof transactionCategoryStyles] || transactionCategoryStyles.default
     
     return (
       <div className={cn('category-badge',borderColor, chipBackgroundColor)}>
         <div className={cn('size-2 rounded-full',backgroundColor)} />
         <p className={cn('text-[12px] font-medium',textColor)}>
-          {category[0]}
+          {typeof category === "string" ? category : category[0]}
         </p>
       </div>
     )
   }
-  
+    
   return (
     <Table key={transactions[0].$id}>
       <TableHeader>
@@ -42,7 +42,7 @@ const TransactionsTable = ({transactions}: TransactionTableProps) => {
           <TableHead className="px-2 max-md:hidden">Category</TableHead>
         </TableRow>
       </TableHeader>
-      <TableBody>
+      <TableBody key={transactions[0].$id}>
         {transactions.map((t: Transaction) => {
           const status = getTransactionStatus(new Date(t?.date));
           const amount = formatAmount(t?.amount);
@@ -50,7 +50,7 @@ const TransactionsTable = ({transactions}: TransactionTableProps) => {
           const isCredit = t?.type === "credit";
           
           return (
-            <TableRow key={t?.transaction_id}
+            <TableRow key={t?.transaction_id || t?.id}
               className={`${isDebit || amount[0] === "-" ? "bg-[#ffbfa]": "bg-[#f6fef9]"} !over-bg:none
                !border-b-default`}>
               <TableCell className={"max-w-[250px] pl-2 pr-10"}>
@@ -68,7 +68,7 @@ const TransactionsTable = ({transactions}: TransactionTableProps) => {
                 {formatDateTime(new Date(t?.date)).dateTime} 
               </TableCell>
               <TableCell className={`pl-2 pr-10 capitalize min-w-32`}> 
-                {t?.payment_channel}
+                {t?.payment_channel || t.paymentChannel}
               </TableCell>
               <TableCell className={`max-md:hidden`}> 
                 {CategoryBadge({category: t?.category})}

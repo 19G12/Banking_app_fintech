@@ -248,6 +248,7 @@ export const getBanks = async (userId: string) => {
 export const getBank = async (documentId: string) => {
 
     try {
+        
         const {database} = await createAdminClient();
         const response = await database.listDocuments(
             DATABASE_ID!,
@@ -256,6 +257,25 @@ export const getBank = async (documentId: string) => {
         );
         
         if (!response.documents.length) console.log("No banks were found for this user");
+        
+        return parseStringify(response.documents[0]);
+        
+    } catch (error) {
+        console.log("Error occured while fetching bank details: ", error);
+        throw error
+    }
+}
+
+export const getBankByAccountId = async ({accountId}:{accountId: string}) => {
+    try {
+        const {database} = await createAdminClient();
+        const response = await database.listDocuments(
+            DATABASE_ID!,
+            BANK_COLLECTION_ID!,
+            [Query.equal('accountId', accountId)] 
+        );
+        
+        if (!response.documents.length) console.log("No banks were found for this account-id");
         
         return parseStringify(response.documents[0]);
         

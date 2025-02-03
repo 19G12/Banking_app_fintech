@@ -18,10 +18,7 @@ const Home = async ({searchParams: asyncSearchParams}: {searchParams: Promise<Re
   const accountsData = accounts?.data;
   
   const appwriteItemId = id || accountsData[0]?.appwriteItemId;  
-  const {transactions} = await getAccount({appwriteItemId});
-  console.log(transactions[0]);
-  
-   
+  const {transactions} = await getAccount({appwriteItemId});   
   
   return (
     <section className="home">

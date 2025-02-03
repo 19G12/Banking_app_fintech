@@ -140,7 +140,7 @@ export function countTransactionCategories(
   transactions &&
     transactions.forEach((transaction) => {
       // Extract the category from the transaction
-      const category = transaction.category;
+      const category = typeof transaction.category === "string"? transaction.category: transaction.category[0];
 
       // If the category exists in the categoryCounts object, increment its count
       if (categoryCounts.hasOwnProperty(category)) {
@@ -217,4 +217,12 @@ export const AuthFormSchema = (type : string) =>  z.object({
       .regex(/^\d{3}-\d{2}-\d{4}$/, "SSN must be in the format XXX-XX-XXXX"),
     email: z.string().email("Invalid email address"),
     password: z.string().min(8, "Password must be at least 8 characters long"),
+  });
+  
+  export const PaymentFormSchema = z.object({
+    email: z.string().email("Invalid email address"),
+    name: z.string().min(4, "Transfer note is too short"),
+    amount: z.string().min(4, "Amount is too short"),
+    senderBank: z.string().min(4, "Please select a valid bank account"),
+    sharableId: z.string().min(8, "Please select a valid sharable Id"),
   });

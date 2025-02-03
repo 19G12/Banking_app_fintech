@@ -4,7 +4,6 @@ import { Button } from "./ui/button"
 import {usePlaidLink} from "react-plaid-link";
 import { useRouter } from "next/navigation";
 import { exchangePublicToken, getLinkToken } from "@/lib/actions/user.actions";
-import { read } from "fs";
 import Image from "next/image";
 
 const PlaidLink = ({user, variant}:PlaidLinkProps) => {

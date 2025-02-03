@@ -1,7 +1,8 @@
 "use server";
-import { PlaidApi, Configuration, Transaction, TransactionsSyncRequest, PlaidEnvironments } from "plaid";
+import { PlaidApi, Configuration, TransactionsSyncRequest, PlaidEnvironments } from "plaid";
 import { parseStringify } from "../utils";
 import { getBank, getBanks } from "./user.actions";
+import { getTransferTransactions } from "./transaction.action";
 
 const plaidClient = new PlaidApi(
   new Configuration({
@@ -81,14 +82,25 @@ export const getAccount = async ({appwriteItemId}: getAccountProps) => {
         const accountData = accountResponse.data.accounts[0];
         
         // Get transactions here
-        
-        const allTransactions = await getTransactions({
+        const transactions = await getTransactions({
             accessToken: bank?.accessToken,
         })
         
-        // const response = await plaidClient.itemGet({
-        //   access_token: bank.accessToken,
-        // });
+        // Get bank to bank transfers
+        const transfers = await getTransferTransactions(bank?.$id);
+        
+        // Club all of them up
+        const allTransfers = transfers.documents.map((val: Transaction) => {
+            return {
+                id: val.$id,
+                name: val?.name,
+                amount: val.amount,
+                date: val.$createdAt,
+                paymentChannel: val.channel,
+                category: val.category,
+                type: val.senderBankId === bank?.$id ? "debit" : "credit"
+            }
+        });
         
         const account = {
             id: accountData.account_id,
@@ -101,6 +113,10 @@ export const getAccount = async ({appwriteItemId}: getAccountProps) => {
             subtype: accountData.subtype! as string,
             appwriteItemId: bank.$id,
         };
+        
+        const allTransactions = [...transactions, ...allTransfers].sort((a,b) => 
+            new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
         
         return parseStringify({
             data: account,
