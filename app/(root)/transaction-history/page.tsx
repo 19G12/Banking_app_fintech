@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/components/Paginated";
 import TransactionsTable from "@/components/TransactionsTable";
 import { getAccount, getAccounts } from "@/lib/actions/bank.actions";
 import { getLoggedInUser } from "@/lib/actions/user.actions";

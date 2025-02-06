@@ -8,7 +8,7 @@ import {
 import BankTableItem from "./BankTableItem";
 import BankInfo from "./BankInfo";
 import TransactionsTable from "./TransactionsTable";
-import Pagination from "./Pagination";
+import Paginated from "./Paginated";
 
 const RecentTransactions = ({transactions=[], page=1, appwriteItemId, accounts}: RecentTransactionsProps) => {
 
@@ -44,7 +44,7 @@ const RecentTransactions = ({transactions=[], page=1, appwriteItemId, accounts}:
                     <BankInfo account={val} appwriteItemId={val.appwriteItemId} type={"full"} />
                     <TransactionsTable transactions={paginatedTransactions} />
                     
-                    <Pagination page={page} totalPages={Math.ceil(transactions.length/10)} />
+                    <Paginated page={page} totalPages={Math.ceil(transactions.length/10)} />
                     
                 </TabsContent>
               ))}
